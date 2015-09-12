@@ -16,10 +16,13 @@
 <body>
 <div id="map"></div>
 <script type="text/javascript">
+    var map;
+    var markerJson = {"name": [], "address": [], "lat": [], "lng": [], "distance": []};
+
     function initMap() {
-        var map = new google.maps.Map(document.getElementById('map'), {
+        map = new google.maps.Map(document.getElementById('map'), {
             center: {lat: 38.905, lng: -77.016},
-            zoom: 16
+            zoom: 14
         });
         var infoWindow = new google.maps.InfoWindow({map: map});
 
@@ -34,9 +37,12 @@
                 infoWindow.setPosition(pos);
                 infoWindow.setContent('You are here');
                 map.setCenter(pos);
+                loadXMLDoc(pos);
+
             }, function () {
                 handleLocationError(true, infoWindow, map.getCenter());
             });
+
         } else {
             // Browser doesn't support Geolocation
             handleLocationError(false, infoWindow, map.getCenter());
@@ -49,6 +55,71 @@
                 'Error: The Geolocation service failed.' :
                 'Error: Your browser doesn\'t support geolocation.');
     }
+
+
+    function loadXMLDoc(userPos) {
+        var xmlhttp = new XMLHttpRequest();
+        if (xmlhttp != null) {
+            xmlhttp.withCredentials = true;
+            xmlhttp.onreadystatechange = function () {
+                parseMarkers(xmlhttp);
+            };
+            var latitude = userPos.lat;
+            var longitude = userPos.lng;
+            var radius = 4;
+            var URL = "http://www.ampleharvest.org/findpantry_genxml.php?lat=" + latitude + "&lng=" + longitude + "&radius=" + radius;
+            xmlhttp.open("GET", URL, true);
+            xmlhttp.send(null);
+        } else {
+            alert("Your browser does not support XMLHTTP");
+        }
+    }
+    function parseMarkers(xhr) {
+        if (xhr.readyState == 4) {
+            if (xhr.status = 200) {
+
+                var markers = xhr.responseXML.getElementsByTagName("marker");
+                for (i = 0; i < markers.length; i++) {
+                    markerJson.name.push(markers[i].getAttribute("name"));
+                    markerJson.address.push(markers[i].getAttribute("address"));
+                    markerJson.lat.push(markers[i].getAttribute("lat"));
+                    markerJson.lng.push(markers[i].getAttribute("lng"));
+                    markerJson.distance.push(markers[i].getAttribute("distance"));
+                }
+
+                markOnMap();
+            }
+        }
+    }
+
+    function markOnMap() {
+        var len = markerJson.name.length;
+        for (var i = 0; i < len; i++) {
+            var pos = {
+                lat: parseFloat(markerJson.lat[i]),
+                lng: parseFloat(markerJson.lng[i])
+            };
+            //alert(JSON.stringify(pos));
+            var marker = new google.maps.Marker({
+                position: pos,
+                map: map,
+                draggable: false,
+                animation: google.maps.Animation.DROP,
+                title: markerJson.name[i] + ":" + markerJson.address[i]
+            });
+            /*
+            marker.addListener('click', toggleBounce);
+
+            function toggleBounce() {
+                if (marker.getAnimation() !== null) {
+                    marker.setAnimation(null);
+                } else {
+                    marker.setAnimation(google.maps.Animation.BOUNCE);
+                }
+            }*/
+        }
+    }
+
 
 </script>
 <script async defer
