@@ -6,7 +6,7 @@ from flask import Blueprint, request, render_template, \
 from werkzeug import check_password_hash, generate_password_hash
 
 # Import the database object from the main app module
-from app import db
+from app import db, staticPath
 
 # Import module forms
 from app.mod_auth.forms import LoginForm
@@ -39,4 +39,4 @@ def signin():
 
         flash('Wrong email or password', 'error-message')
 
-    return render_template("auth/signin.html", form=form)
+    return render_template("auth/signin.html", form=form, static_path=staticPath)
