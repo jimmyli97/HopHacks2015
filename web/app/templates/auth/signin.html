@@ -1,0 +1,119 @@
+{% macro render_field(field, placeholder=None) %}
+{% if field.errors %}
+<div>
+{% elif field.flags.error %}
+<div>
+{% else %}
+<div>
+{% endif %}
+    {% set css_class = 'form-control ' + kwargs.pop('class', '') %}
+    {{ field(class=css_class, placeholder=placeholder, **kwargs) }}
+</div>
+{% endmacro %}
+
+<!DOCTYPE HTML>
+<!--
+	Identity by HTML5 UP
+	html5up.net | @n33co
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+<head>
+    <title>Identity by HTML5 UP</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <!--[if lte IE 8]>
+    <script src="{{ static_path }}/assets/auth/js/html5shiv.js"></script><![endif]-->
+    <link rel="stylesheet" href="{{ static_path }}/assets/auth/css/main.css"/>
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="{{ static_path }}/assets/auth/css/ie9.css"/><![endif]-->
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="{{ static_path }}/assets/auth/css/ie8.css"/><![endif]-->
+    <noscript>
+        <link rel="stylesheet" href="{{ static_path }}/assets/auth/css/noscript.css"/>
+    </noscript>
+</head>
+<body class="is-loading">
+
+<!-- Wrapper -->
+<div id="wrapper">
+
+    <!-- Main -->
+    <section id="main">
+        <!--
+        <header>
+            <span class="avatar"><img src="{{ static_path }}/images/avatar.jpg" alt=""/></span>
+
+            <h1>Jane Doe</h1>
+
+            <p>Senior Psychonautics Engineer</p>
+        </header>
+        <footer>
+            <ul class="icons">
+                <li><a href="#" class="fa-twitter">Twitter</a></li>
+                <li><a href="#" class="fa-instagram">Instagram</a></li>
+                <li><a href="#" class="fa-facebook">Facebook</a></li>
+            </ul>
+        </footer>
+        -->
+        <div>
+            <legend>Sign in</legend>
+            {% with errors = get_flashed_messages(category_filter=["error"]) %}
+            {% if errors %}
+            <div>
+                {% for error in errors %}
+                {{ error }}<br>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            {% if form.errors %}
+            <div>
+                {% for field, error in form.errors.items() %}
+                {% for e in error %}
+                {{ e }}<br>
+                {% endfor %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            <form method="POST" action="." accept-charset="UTF-8" role="form">
+                {{ form.csrf_token }}
+                {{ render_field(form.email, placeholder="Your Email Address",
+                autofocus="") }}
+                {{ render_field(form.password, placeholder="Password") }}
+                <div>
+                    <label>
+                        <input type="checkbox" name="remember" value="1"> Remember Me
+                    </label>
+                    <a role="button" href="">Forgot your password?</a><span class="clearfix"></span>
+                </div>
+                <button type="submit" name="submit">Sign in</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <ul class="copyright">
+            <li>&copy; Jane Doe</li>
+            <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+        </ul>
+    </footer>
+
+</div>
+
+<!-- Scripts -->
+<!--[if lte IE 8]>
+<script src="{{ static_path }}/assets/auth/js/respond.min.js"></script><![endif]-->
+<script>
+    if ('addEventListener' in window) {
+        window.addEventListener('load', function () {
+            document.body.className = document.body.className.replace(/\bis-loading\b/, '');
+        });
+        document.body.className += (navigator.userAgent.match(/(MSIE|rv:11\.0)/) ? ' is-ie' : '');
+    }
+</script>
+
+</body>
+</html>
