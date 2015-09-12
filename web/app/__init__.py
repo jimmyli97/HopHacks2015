@@ -4,6 +4,11 @@ from flask import Flask, render_template
 # Import SQLAlchemy
 from flask.ext.sqlalchemy import SQLAlchemy
 
+#import SMTPlib
+import smtplib
+import threading 
+
+
 #app global parameters
 address="127.0.0.1"
 port=8080
@@ -46,3 +51,36 @@ app.register_blueprint(map_module)
 # Build the database:
 # This will create the database file using SQLAlchemy
 db.create_all()
+
+# Start SMTP email daemon:
+def email ():
+
+	#server = smtplib.SMTP('smtp.gmail.com:465')
+	server = smtplib.SMTP('127.0.0.1:25')
+	server.ehlo()
+	#server.starttls()
+
+	#server.login('noreply.foodaid@gmail.com', '1234567890#')
+
+	sender = 'noreply.foodaid@gmail.com'
+	receivers = ['jimmy.jiajian.li@gmail.com']
+	message = """From: Expiration Date Reminders <reminders@foodaid.com>
+	To: Jimmy Li <jimmy.jiajian.li@gmail.com>
+	Subject: Food aid reminder test
+	AHHHHHHH
+	"""
+	server.sendmail(sender, receivers, message)
+	server.quit()
+	
+
+t = threading.Thread(target=email)
+t.start()
+
+
+
+
+
+
+
+
+
