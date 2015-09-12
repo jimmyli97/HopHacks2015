@@ -1,0 +1,44 @@
+<html>
+    <head>
+        <script type=text/javascript>
+            $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        </script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="{{
+  url_for('static', filename='jquery-2.1.4.min.js') }}">\x3C/script>')</script>
+
+        <!--
+        <script>
+            $( document ).ready(function() {
+                alert("JQUERY");
+                $( "#imageForm" ).bind('submit',(function(e) {
+                    alert("Prevent POST!");
+                    e.preventDefault();
+                    var formData = new FormData(this);
+                    $.ajax({
+                        type: "POST",
+                        url: "$SCRIPT_ROOT + /_processImage", 
+                        data: { param: text}
+                    }).done(function(foodJson) {
+                        //TODO add output to database, refresh table
+                    });
+                }
+            });
+        </script>-->
+    </head>
+    <body>
+        <!-- TODO: FIX THIS - For some reason this is not working -->
+        <script type="text/javascript">
+            $( document ).ready(function() {
+                $("#msgid").html("This is Hello World by JQuery");
+            }
+        </script>
+        <div id="msgid"></div>
+        <!-- On submit, this form will be handled by the above JQuery code -->
+        <form id="imageForm" method="POST">
+            <!--Use multiple attribute to enable multi image upload -->
+            <input id="imageURL" type="file" name="uploadImage"/>
+            <input id="imageSubmit" type="submit"/>
+        </form>
+    </body>
+</html>
