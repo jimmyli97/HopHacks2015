@@ -4,9 +4,11 @@ from flask import Flask, render_template
 # Import SQLAlchemy
 from flask.ext.sqlalchemy import SQLAlchemy
 
-#import SMTPlib
+#import libraries for emailing
 import smtplib
-import threading 
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEText import MIMEText
+import sched, time
 
 
 #app global parameters
@@ -52,35 +54,33 @@ app.register_blueprint(map_module)
 # This will create the database file using SQLAlchemy
 db.create_all()
 
-# Start SMTP email daemon:
-def email ():
+# Start SMTP email schedule:
+emailSchedule = sched.scheduler(time.time, time.sleep)
+timeDelaySec = 5
+def emailReminders():
+    print "It's been 5 seconds!"
+    '''
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.ehlo()
+    server.starttls()
 
-	#server = smtplib.SMTP('smtp.gmail.com:465')
-	server = smtplib.SMTP('127.0.0.1:25')
-	server.ehlo()
-	#server.starttls()
+    server.login('noreply.foodaid@gmail.com', '1234567890#')
 
-	#server.login('noreply.foodaid@gmail.com', '1234567890#')
+    sender = 'noreply.foodaid@gmail.com'
+    receiver = 'noreply.foodaid@gmail.com'
 
-	sender = 'noreply.foodaid@gmail.com'
-	receivers = ['jimmy.jiajian.li@gmail.com']
-	message = """From: Expiration Date Reminders <reminders@foodaid.com>
-	To: Jimmy Li <jimmy.jiajian.li@gmail.com>
-	Subject: Food aid reminder test
-	AHHHHHHH
-	"""
-	server.sendmail(sender, receivers, message)
-	server.quit()
-	
+    msg = MIMEMultipart()
+    msg['From'] = 'noreply.foodaid@gmail.com'
+    msg['To'] = 'noreply.foodaid@gmail.com'
+    msg['Subject'] = 'Food aid reminder test'
 
-t = threading.Thread(target=email)
-t.start()
+    body = "Chips expire in 8 days!"
+    msg.attach(MIMEText(body, 'plain'))
+    server.sendmail(sender, receiver, msg.as_string())
+    print 'Email successfully sent'
+    server.quit()
+    '''
+    emailSchedule.enter(5, 1, emailReminders, ())
 
-
-
-
-
-
-
-
-
+emailSchedule.enter(5, 1, emailReminders, ())
+emailSchedule.run()
