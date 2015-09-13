@@ -12,31 +12,46 @@ url_for('static', filename='jquery-2.1.4.min.js') }}">\x3C/script>')</script>
         <script>
             function updateTable() {
                 $.ajax({
-                    type: "POST",
+                    type: "GET",
+                    url: $SCRIPT_ROOT + "/_viewusertable"
+                }).done(function(data) {
+                    alert (JSON.stringify(data))
+                    $("#usertable").html("");
+                    var html = "<table><thead><tr><th>User</th><th>FoodtableId</th></tr></thead><tbody>";
+                    for (var i=0, len = data.rows.length; i < len; ++i) {
+                        html += "<tr>";
+                        for (var j=0, rowLen = data.rows[i].length; j < rowLen; ++j) {
+                            html+="<td>" + data.rows[i][j] + "</td>";
+                        }
+                        html += "</tr>";
+                    }
 
-                }).done(function(output) {
-                    $(document.createElement('table'));
-                    $(document.createElement('tr'));
-                    $(document.createElement('th'));
-                    $(document.createElement('td'));
+                    html += "</tbody></table>";
+                    $(html).appendTo("#usertable");
 
+                    
                 });
             }
             $( document ).ready(function() {
                 /* Bind AJAX call to add user button */
-                $( "#add" ).bind('click',(function(e) {
+                $( "#add" ).bind("click",(function(e) {
                     e.preventDefault();
-                    var userid = document.getElementById("#name").value;
+                    var userid = document.getElementById("name").value;
                     var formData = new FormData(this);
                     $.ajax({
                         type: "POST",
-                        url: "$SCRIPT_ROOT + /_add_user",
-                        data: {'user_id' : userid}
+                        url: $SCRIPT_ROOT + "/_adduser",
+                        data: {"user_id" : userid}
                     }).done(function(output) {
-                        //Update table
+                        updateTable();
+                    }).fail(function(jqXHR, textStatus) {
+                        alert(jqXHR.status);
+                        alert(textStatus);
+                        alert(jqXHR.responseText);
                     });
                 }))
                 /* Display table using AJAX call */
+                updateTable();
             })
         </script>
     </head>

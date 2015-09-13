@@ -1,11 +1,13 @@
+import random
+import string
 import sqlite3
-from flask import Flask, current_app, g, render_template, jsonify, request
+from flask import Flask, current_app, g, render_template, jsonify, request, Response
 from flask.json import JSONEncoder
 
 app = Flask(__name__)
 
 # Replace with SCRIPT_ROOT
-DATABASE='/test.db'
+DATABASE='test.db'
 
 # Custom json encoder for handling YYYY-MM-DD
 class DateJSONEncoder(JSONEncoder):
@@ -29,7 +31,7 @@ def close_connection(exception):
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
-        db = g._database = sqlite3.connect('DATABASE')
+        db = g._database = sqlite3.connect(DATABASE)
     return db
 
 def query_db(query, args=(), one=False):
@@ -43,7 +45,7 @@ def query_db(query, args=(), one=False):
 def view_foodtable(foodtable_id):
     # TODO: do user auth
     # TODO: THIS NEEDS TO BE SANITIZED
-    cur = get_db().execute("SELECT * FROM " + foodtable_id)
+    cur = get_db().execute("SELECT * FROM " + foodtable_id + ";")
     return jsonify(rows = cur.fetchall())
     
 
@@ -59,49 +61,49 @@ def add_food():
     barcode = data.get('barcode')
     expiration = data['expiration']
     if barcode:
-        query = "INSERT INTO " + foodtable_id + "(Name, Barcode, Expiration)" + " VALUES(" + foodname + "," + barcode + "," + expiration + ")"
+        query = "INSERT INTO " + foodtable_id + "(Name, Barcode, Expiration)" + " VALUES('" + foodname + "'," + barcode + ",'" + expiration + "');"
     else:
-        query = "INSERT INTO " + foodtable_id + "(Name, Expiration)" + " VALUES(" + foodname + "," + expiration + ")"
+        query = "INSERT INTO " + foodtable_id + "(Name, Expiration)" + " VALUES(" + foodname + "," + expiration + ");"
         
     cur = get_db().execute(query)
     get_db().commit()
-    # TODO: messy, return status code instead
-    return True
-
-# Route for adding a new food table for a new user
-# TODO: SECURE THIS
-@app.route('/_newtable', methods=['POST'])
-def add_foodtable():
-    foodtable_id = request.form['foodtable_id']
-    cur = get_db().execute("CREATE TABLE " + foodtable_id + "(Id INTEGER PRIMARY KEY, Name TEXT NOT NULL, Barcode INTEGER, Expiration TEXT NOT NULL)")
-    get_db().commit()
-    # TODO: messy, return status code instead
-    return True
+    return "Food successfully added!"
 
 # Route for viewing the user table
 # TODO: SECURE THIS
 @app.route('/_viewusertable', methods=['GET'])
 def view_usertable():
-    cur = get_db().execute("SELECT * FROM users")
+    cur = get_db().execute("SELECT * FROM users;")
     return jsonify(rows = cur.fetchall())
 
 # Route for adding a new user to the user table
 # TODO: SECURE THIS
 @app.route('/_adduser', methods=['POST'])
 def add_user():
-    user_id = request.form['user_id']
-    foodtable_id = ''.join(random.choice(string.ascii_letters) for _ in range(8))
-    cur = get_db().execute("INSERT INTO users(Username, FoodtableId) VALUES(" + user_id + ", " +  foodtable_id + ")")
-    get_db().commit()
-    # TODO: messy, return status code isntead
-    return True
+    try: 
+        print request.form
+        user_id = request.form['user_id']
+        # TODO: NOT GUARANTEED AGAINST COLLISIONS
+        foodtable_id = ''.join(random.choice(string.ascii_letters) for _ in range(8))
+        cur = get_db().execute("INSERT INTO users(Username, FoodtableId) VALUES('" + user_id + "', '" +  foodtable_id + "');")
+        cur = get_db().execute("CREATE TABLE " + foodtable_id + "(Id INTEGER PRIMARY KEY, Name TEXT NOT NULL, Barcode INTEGER, Expiration TEXT NOT NULL);")
+        get_db().commit()
+    except (KeyboardInterrupt, SystemExit): 
+        print 'Keyboard interrupt or system exit'
+        raise
+    except:
+        e = sys.exc_info()[0]
+        print "Exception: %s" % e
+    return "User successfully added!" 
 
 # Index page for creating new users and the table of all users and foodtable_id
 # TODO: SECURE THIS
 @app.route('/_admin', methods=['GET'])
-def index():
+def admin():
     # Create user table if it doesn't exist
-    cur = get_db().execute("CREATE TABLE IF NOT EXISTS users(Username TEXT PRIMARY KEY, FoodtableId TEXT)")
+    cur = get_db().execute("CREATE TABLE IF NOT EXISTS users(Username TEXT PRIMARY KEY, FoodtableId TEXT);")
+    cur = get_db().execute("SELECT sqlite_version();")
+    print "SQLite version: %s" % cur.fetchone()
     get_db().commit()
     return render_template("admin.html")
 
