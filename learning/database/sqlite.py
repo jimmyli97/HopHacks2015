@@ -71,7 +71,7 @@ def add_food():
     if barcode:
         query = "INSERT INTO " + foodtable_id + "(Name, Barcode, Expiration)" + " VALUES('" + foodname + "'," + barcode + ",'" + expiration + "');"
     else:
-        query = "INSERT INTO " + foodtable_id + "(Name, Expiration)" + " VALUES(" + foodname + "," + expiration + ");"
+        query = "INSERT INTO " + foodtable_id + "(Name, Expiration)" + " VALUES('" + foodname + "', '" + expiration + "');"
         
     cur = get_db().execute(query)
     get_db().commit()

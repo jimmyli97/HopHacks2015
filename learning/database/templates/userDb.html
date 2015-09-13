@@ -15,7 +15,6 @@
                     type: "GET",
                     url: $SCRIPT_ROOT + "/_viewfoodtable/" + {{ '"%s"'|format(foodtableid)|safe }}
                 }).done(function(data) {
-                    alert (JSON.stringify(data))
                     $("#userfoodtable").html("");
                     var html = "<table><thead><tr><th>Name</th><th>Barcode</th><th>Expiration</th></tr></thead><tbody>";
                     for (var i=0, len = data.rows.length; i < len; ++i) {
@@ -36,12 +35,11 @@
             }
             $( document ).ready(function() {
                 /* Bind AJAX call to add user button */
-                /*
-                $( "#add" ).bind("click",(function(e) {
+                $( "#add" ).click(function(e) {
                     e.preventDefault();
                     var foodname = document.getElementById("name").value;
                     var barcode = document.getElementById("barcode").value;
-                    var expiration = document.getElementById("expiraton").value;
+                    var expiration = document.getElementById("expiration").value;
 
                     var formData = new FormData(this);
                     $.ajax({
@@ -58,7 +56,7 @@
                         alert(textStatus);
                         alert(jqXHR.responseText);
                     });
-                }))
+                })
                 /* Display table using AJAX call */
                 updateTable();
             })
