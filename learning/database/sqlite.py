@@ -45,9 +45,17 @@ def query_db(query, args=(), one=False):
 def view_foodtable(foodtable_id):
     # TODO: do user auth
     # TODO: THIS NEEDS TO BE SANITIZED
-    cur = get_db().execute("SELECT * FROM " + foodtable_id + ";")
-    return jsonify(rows = cur.fetchall())
-    
+    try: 
+        #cur = get_db().execute("SELECT * FROM users;")
+        cur = get_db().execute("SELECT * FROM " + foodtable_id + ";")
+        return jsonify(rows = cur.fetchall())
+    except (KeyboardInterrupt, SystemExit): 
+        print 'Keyboard interrupt or system exit'
+        raise
+    except:
+        e = sys.exc_info()[0]
+        print "Exception: %s" % e
+
 
 # Route for adding a food to a user's food database 
 # TODO: SECURE THIS
@@ -111,8 +119,10 @@ def admin():
 # TODO: SECURE THIS
 @app.route('/user/<username>', methods=['GET'])
 def show_database(username):
-    #TODO: pass in username as variable
-    return render_template("userDb.html")
+    cur = get_db().execute("SELECT foodtableid FROM users WHERE username='" + username + "';")
+    data = cur.fetchone()
+    data = "%s" % data
+    return render_template("userDb.html", username=username, foodtableid=data)
 
 # Construct application context to start database
 # with app.app_context():

@@ -1,10 +1,76 @@
 <html>
     <head>
+        <!-- Define root for all REST api requests -->
+        <script type=text/javascript>
+            $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        </script>
+        <!-- Load JQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"/></script>
+        <script>window.jQuery || document.write('<script src="{{
+            url_for('static', filename='jquery-2.1.4.min.js') }}">\x3C/script>')</script>
+
+        <script>
+            function updateTable() {
+                $.ajax({
+                    type: "GET",
+                    url: $SCRIPT_ROOT + "/_viewfoodtable/" + {{ '"%s"'|format(foodtableid)|safe }}
+                }).done(function(data) {
+                    alert (JSON.stringify(data))
+                    $("#userfoodtable").html("");
+                    var html = "<table><thead><tr><th>Name</th><th>Barcode</th><th>Expiration</th></tr></thead><tbody>";
+                    for (var i=0, len = data.rows.length; i < len; ++i) {
+                        html += "<tr>";
+                        for (var j=0, rowLen = data.rows[i].length; j < rowLen; ++j) {
+                            html+="<td>" + data.rows[i][j] + "</td>";
+                        }
+                        html += "</tr>";
+                    }
+
+                    html += "</tbody></table>";
+                    $(html).appendTo("#userfoodtable");
+                }).fail(function(jqXHR, textStatus) { 
+                    alert(jqXHR.status);
+                    alert(textStatus);
+                    alert(jqXHR.responseText);
+                })
+            }
+            $( document ).ready(function() {
+                /* Bind AJAX call to add user button */
+                /*
+                $( "#add" ).bind("click",(function(e) {
+                    e.preventDefault();
+                    var foodname = document.getElementById("name").value;
+                    var barcode = document.getElementById("barcode").value;
+                    var expiration = document.getElementById("expiraton").value;
+
+                    var formData = new FormData(this);
+                    $.ajax({
+                        type: "POST",
+                        url: $SCRIPT_ROOT + "/_addfood",
+                        data: {"foodtable_id" : {{ '"%s"'|format(foodtableid)|safe }},
+                               "foodname"     : foodname,
+                               "barcode"      : barcode,
+                               "expiration"   : expiration}
+                    }).done(function(output) {
+                        updateTable();
+                    }).fail(function(jqXHR, textStatus) {
+                        alert(jqXHR.status);
+                        alert(textStatus);
+                        alert(jqXHR.responseText);
+                    });
+                }))
+                /* Display table using AJAX call */
+                updateTable();
+            })
+
+        </script>
+
     </head>
     <body>
+        <div id="userfoodtable"></div>
         Name of food: <input id="name" type="text" value="Food"/>
-        Barcode number (optional): <input id="name" type="text" value="Barcode"/>
-        Expiration date (YYYY-MM-DD): <input id="name" type="text" value="Expiration date"/>
+        Barcode number (optional): <input id="barcode" type="text" value="Barcode"/>
+        Expiration date (YYYY-MM-DD): <input id="expiration" type="text" value="Expiration date"/>
         <input id="add" type="button" value="Add to database"/>
     </body>
 </html>
