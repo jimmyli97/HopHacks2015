@@ -55,11 +55,11 @@ app.register_blueprint(map_module)
 db.create_all()
 
 # Start SMTP email schedule:
+'''
 emailSchedule = sched.scheduler(time.time, time.sleep)
 timeDelaySec = 5
 def emailReminders():
     print "It's been 5 seconds!"
-    '''
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.ehlo()
     server.starttls()
@@ -79,8 +79,8 @@ def emailReminders():
     server.sendmail(sender, receiver, msg.as_string())
     print 'Email successfully sent'
     server.quit()
-    '''
     emailSchedule.enter(5, 1, emailReminders, ())
 
 emailSchedule.enter(5, 1, emailReminders, ())
 emailSchedule.run()
+'''
