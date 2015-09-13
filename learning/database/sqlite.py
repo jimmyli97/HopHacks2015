@@ -124,11 +124,21 @@ def show_database(username):
     data = "%s" % data
     return render_template("userDb.html", username=username, foodtableid=data)
 
+
+@app.route('/map/shelter/', methods=['GET', 'POST'])
+def shelter():
+
+        #TODO: get user location
+            #TODO: show the map around the user
+                #TODO: get shelter geo data
+                    #TODO: mark the shelters
+
+    return render_template("shelter.html", api_key="AIzaSyB256H69Gt9oBbtaXuYrPqvx8BBNiTZhmo")
+
 # Construct application context to start database
 # with app.app_context():
 
 if (__name__=='__main__'):
     app.run()
-
 
 
